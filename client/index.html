@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d1b2a" />
+  <title>ArdayScore — Student Result Prediction</title>
+  <style>
+    :root {
+      --navy: #0d1b2a;
+      --navy-light: #17324b;
+      --blue: #4f8cff;
+      --cyan: #41d9c5;
+      --cream: #f7f9fc;
+      --ink: #15243a;
+      --muted: #6d7d92;
+      --line: #e4eaf2;
+      --green: #16a579;
+      --red: #e85d75;
+      --shadow: 0 24px 70px rgba(20, 39, 67, .12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(145deg, #edf4ff 0%, #f8fbff 52%, #effcf9 100%);
+    }
+
+    .page-shell { max-width: 1180px; margin: 0 auto; padding: 28px 22px 44px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 58px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--navy); text-decoration: none; font-weight: 800; letter-spacing: -.04em; font-size: 1.12rem; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: white; background: linear-gradient(135deg, var(--blue), #7359e9); box-shadow: 0 8px 20px rgba(79, 140, 255, .28); }
+    .status-pill { display: flex; align-items: center; gap: 8px; padding: 9px 13px; border: 1px solid #d9e5f2; border-radius: 99px; color: #49617b; font-size: .78rem; font-weight: 700; background: rgba(255, 255, 255, .72); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(22, 165, 121, .12); }
+
+    .hero { display: grid; grid-template-columns: 1.02fr .98fr; align-items: center; gap: 62px; margin-bottom: 42px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #4b73d8; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 27px; height: 2px; border-radius: 4px; background: var(--blue); }
+    h1 { max-width: 600px; margin: 16px 0 18px; color: var(--navy); font-size: clamp(2.55rem, 5vw, 4.65rem); line-height: .98; letter-spacing: -.075em; }
+    h1 span { color: var(--blue); }
+    .hero-copy { max-width: 500px; margin: 0; color: var(--muted); line-height: 1.75; font-size: 1.04rem; }
+    .hero-note { display: flex; align-items: center; gap: 10px; margin-top: 24px; color: #506783; font-size: .86rem; font-weight: 600; }
+    .hero-note strong { color: var(--navy); }
+    .spark { position: relative; min-height: 285px; }
+    .orb { position: absolute; inset: 16px 42px 10px 40px; border-radius: 48% 52% 54% 46%; background: linear-gradient(140deg, rgba(79, 140, 255, .2), rgba(65, 217, 197, .24)); filter: blur(.1px); transform: rotate(-8deg); }
+    .orb::before, .orb::after { content: ""; position: absolute; border: 1px solid rgba(79, 140, 255, .19); border-radius: 50%; }
+    .orb::before { inset: 26px -20px 32px 12px; transform: rotate(22deg); }
+    .orb::after { inset: -12px 12px 26px -16px; transform: rotate(-18deg); }
+    .floating-card { position: absolute; display: flex; align-items: center; gap: 13px; padding: 15px 18px; border: 1px solid rgba(255, 255, 255, .75); border-radius: 18px; background: rgba(255, 255, 255, .78); box-shadow: 0 16px 35px rgba(49, 91, 145, .14); backdrop-filter: blur(12px); }
+    .floating-card.main { inset: 48px 65px auto auto; width: 215px; }
+    .floating-card.second { inset: auto auto 38px 0; width: 190px; }
+    .float-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #fff; font-size: 1.15rem; background: linear-gradient(135deg, #2bbba6, #5ad8bc); }
+    .second .float-icon { background: linear-gradient(135deg, #7894f3, #8066e7); }
+    .float-label { display: block; color: var(--muted); font-size: .73rem; font-weight: 700; }
+    .float-value { display: block; margin-top: 3px; color: var(--navy); font-size: 1.15rem; font-weight: 850; }
+
+    .dashboard { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border: 1px solid rgba(217, 227, 239, .95); border-radius: 28px; background: rgba(255, 255, 255, .84); box-shadow: var(--shadow); backdrop-filter: blur(10px); }
+    .panel { padding: 38px; }
+    .form-panel { background: rgba(255, 255, 255, .76); }
+    .result-panel { display: flex; flex-direction: column; justify-content: center; color: #fff; background: linear-gradient(150deg, var(--navy), #112e47 68%, #144653); }
+    .panel-heading { margin-bottom: 28px; }
+    .panel-kicker { margin-bottom: 8px; color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .result-panel .panel-kicker { color: var(--cyan); }
+    h2 { margin: 0; font-size: 1.55rem; letter-spacing: -.045em; }
+    .panel-subtitle { margin: 8px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    .result-panel .panel-subtitle { color: #a9bbce; }
+    .field { margin-bottom: 24px; }
+    .field-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #334b66; font-size: .9rem; font-weight: 800; }
+    .field-hint { color: #8a9bad; font-size: .74rem; font-weight: 600; }
+    .input-wrap { position: relative; }
+    input[type="number"] { width: 100%; padding: 15px 56px 15px 16px; border: 1.5px solid var(--line); border-radius: 13px; outline: none; color: var(--navy); font: inherit; font-size: 1.05rem; font-weight: 750; background: #fbfcfe; transition: .2s ease; }
+    input[type="number"]:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(79, 140, 255, .1); }
+    .input-suffix { position: absolute; top: 50%; right: 17px; color: #91a0b0; font-size: .8rem; font-weight: 800; transform: translateY(-50%); }
+    input[type="range"] { width: 100%; margin: 13px 0 0; accent-color: var(--blue); cursor: pointer; }
+    .range-labels { display: flex; justify-content: space-between; margin-top: 4px; color: #9aa7b6; font-size: .69rem; font-weight: 700; }
+    .quick-values { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .quick-btn { padding: 7px 11px; border: 1px solid #dce5ef; border-radius: 8px; color: #647891; font: inherit; font-size: .72rem; font-weight: 750; background: #fff; cursor: pointer; transition: .2s ease; }
+    .quick-btn:hover { border-color: var(--blue); color: var(--blue); transform: translateY(-1px); }
+    .predict-btn { display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; margin-top: 30px; padding: 16px 22px; border: 0; border-radius: 13px; color: #fff; font: inherit; font-weight: 850; background: linear-gradient(100deg, #4f8cff, #6873e9); box-shadow: 0 11px 22px rgba(79, 140, 255, .24); cursor: pointer; transition: .2s ease; }
+    .predict-btn:hover { box-shadow: 0 14px 27px rgba(79, 140, 255, .34); transform: translateY(-2px); }
+    .predict-btn:disabled { opacity: .7; cursor: wait; transform: none; }
+    .privacy-note { margin: 14px 0 0; color: #98a6b5; text-align: center; font-size: .72rem; }
+    .result-empty { display: flex; flex-direction: column; align-items: center; padding: 18px 0 6px; text-align: center; }
+    .result-orbit { display: grid; place-items: center; width: 148px; height: 148px; margin-bottom: 22px; border: 1px dashed rgba(65, 217, 197, .45); border-radius: 50%; color: rgba(255, 255, 255, .8); font-size: 3rem; background: rgba(255, 255, 255, .06); }
+    .empty-title { margin: 0 0 8px; font-size: 1.24rem; }
+    .empty-copy { max-width: 290px; margin: 0; color: #9eb0c1; font-size: .88rem; line-height: 1.6; }
+    .result-content { display: none; }
+    .result-content.visible { display: block; animation: rise .35s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .result-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+    .prediction-label { color: #9eb0c1; font-size: .82rem; font-weight: 700; }
+    .prediction-value { margin-top: 5px; font-size: clamp(2.7rem, 5vw, 4.2rem); line-height: 1; font-weight: 900; letter-spacing: -.08em; }
+    .prediction-value.pass { color: var(--cyan); }
+    .prediction-value.fail { color: #ff8294; }
+    .confidence-badge { min-width: 95px; padding: 12px 9px; border: 1px solid rgba(65, 217, 197, .3); border-radius: 14px; color: var(--cyan); text-align: center; background: rgba(65, 217, 197, .1); }
+    .confidence-number { display: block; font-size: 1.55rem; font-weight: 900; }
+    .confidence-caption { color: #9eb0c1; font-size: .67rem; font-weight: 700; }
+    .meter { height: 8px; margin: 25px 0 22px; overflow: hidden; border-radius: 20px; background: rgba(255, 255, 255, .12); }
+    .meter-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--cyan)); transition: width .7s cubic-bezier(.2,.8,.2,1); }
+    .result-message { margin: 0 0 25px; color: #d7e3ee; font-size: .93rem; line-height: 1.65; }
+    .insight { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .insight-item { padding: 13px; border: 1px solid rgba(255, 255, 255, .11); border-radius: 13px; background: rgba(255, 255, 255, .06); }
+    .insight-label { display: block; color: #8fa6bb; font-size: .7rem; font-weight: 700; }
+    .insight-value { display: block; margin-top: 4px; color: #fff; font-weight: 800; }
+    .error-box { display: none; margin-top: 14px; padding: 11px 13px; border: 1px solid #ffc8d1; border-radius: 10px; color: #b23850; font-size: .78rem; background: #fff4f6; }
+    .error-box.visible { display: block; }
+    footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 24px; color: #8797aa; font-size: .76rem; }
+
+    @media (max-width: 800px) {
+      .topbar { margin-bottom: 36px; }
+      .hero { grid-template-columns: 1fr; gap: 22px; }
+      .spark { min-height: 215px; max-width: 470px; width: 100%; margin: 0 auto; }
+      .dashboard { grid-template-columns: 1fr; }
+      .result-panel { min-height: 350px; }
+    }
+    @media (max-width: 500px) {
+      .page-shell { padding: 20px 14px 28px; }
+      .topbar { margin-bottom: 35px; }
+      .status-pill { padding: 8px 10px; font-size: .68rem; }
+      h1 { font-size: 2.8rem; }
+      .panel { padding: 25px 20px; }
+      .floating-card.main { right: 5px; }
+      .floating-card.second { left: 0; }
+      footer { flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="ArdayScore home">
+        <span class="brand-mark">✦</span>
+        <span>ArdayScore</span>
+      </a>
+      <div class="status-pill"><span class="status-dot"></span> AI model ready</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Student success predictor</div>
+        <h1>Understand your academic future in <span>one minute.</span></h1>
+        <p class="hero-copy">Enter your daily study hours and attendance percentage. ArdayScore gives you a simple, data-informed prediction of your academic result.</p>
+        <div class="hero-note">⚡ <span>Fast, simple, and <strong>built for your success.</strong></span></div>
+      </div>
+      <div class="spark" aria-hidden="true">
+        <div class="orb"></div>
+        <div class="floating-card main"><span class="float-icon">↗</span><span><span class="float-label">Overall prediction</span><span class="float-value">Pass 84%</span></span></div>
+        <div class="floating-card second"><span class="float-icon">◒</span><span><span class="float-label">Attendance</span><span class="float-value">90% consistent</span></span></div>
+      </div>
+    </section>
+
+    <section class="dashboard" aria-label="Student prediction tool">
+      <div class="panel form-panel">
+        <div class="panel-heading">
+          <div class="panel-kicker">Step 01</div>
+          <h2>Student information</h2>
+          <p class="panel-subtitle">Fill in the two details below to get your prediction.</p>
+        </div>
+
+        <form id="prediction-form">
+          <div class="field">
+            <label class="field-label" for="studyhour"><span>Study hours</span><span class="field-hint">per day</span></label>
+            <div class="input-wrap"><input id="studyhour" name="studyhour" type="number" min="0" max="24" step="0.1" value="5.5" required /><span class="input-suffix">hours</span></div>
+            <div class="quick-values">
+              <button type="button" class="quick-btn" data-target="studyhour" data-value="2">2 hours</button>
+              <button type="button" class="quick-btn" data-target="studyhour" data-value="5">5 hours</button>
+              <button type="button" class="quick-btn" data-target="studyhour" data-value="8">8 hours</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="attendance"><span>Attendance percentage</span><span id="attendance-value" class="field-hint">75%</span></label>
+            <div class="input-wrap"><input id="attendance" name="attendance" type="number" min="0" max="100" step="1" value="75" required /><span class="input-suffix">%</span></div>
+            <input id="attendance-range" type="range" min="0" max="100" step="1" value="75" aria-label="Attendance slider" />
+            <div class="range-labels"><span>0% — low</span><span>100% — excellent</span></div>
+          </div>
+
+          <button id="predict-btn" class="predict-btn" type="submit"><span>Get prediction</span><span aria-hidden="true">→</span></button>
+          <p class="privacy-note">Your data is not stored. It is only used for this prediction.</p>
+          <div id="error-box" class="error-box" role="alert"></div>
+        </form>
+      </div>
+
+      <div class="panel result-panel">
+        <div class="panel-heading">
+          <div class="panel-kicker">Step 02</div>
+          <h2>Prediction result</h2>
+          <p class="panel-subtitle">The model will analyze the information you entered.</p>
+        </div>
+        <div id="result-empty" class="result-empty">
+          <div class="result-orbit">✧</div>
+          <h3 class="empty-title">Your result will appear here</h3>
+          <p class="empty-copy">Click “Get prediction” to see your estimated outcome.</p>
+        </div>
+        <div id="result-content" class="result-content">
+          <div class="result-top">
+            <div><div class="prediction-label">Predicted result</div><div id="prediction-value" class="prediction-value">Pass</div></div>
+            <div class="confidence-badge"><span id="confidence-number" class="confidence-number">0%</span><span class="confidence-caption">confidence</span></div>
+          </div>
+          <div class="meter" aria-label="Prediction confidence"><div id="meter-fill" class="meter-fill"></div></div>
+          <p id="result-message" class="result-message"></p>
+          <div class="insight">
+            <div class="insight-item"><span class="insight-label">Study time</span><span id="study-summary" class="insight-value">— hours</span></div>
+            <div class="insight-item"><span class="insight-label">Attendance</span><span id="attendance-summary" class="insight-value">—%</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer><span>© 2026 ArdayScore</span><span>Designed to support student success</span></footer>
+  </main>
+
+  <script>
+    // The client is intentionally separate from the FastAPI backend.
+    // Change this value when the API is deployed to another host.
+    const API_BASE_URL = window.API_BASE_URL || 'http://127.0.0.1:8000';
+    const form = document.getElementById('prediction-form');
+    const studyInput = document.getElementById('studyhour');
+    const attendanceInput = document.getElementById('attendance');
+    const attendanceRange = document.getElementById('attendance-range');
+    const attendanceValue = document.getElementById('attendance-value');
+    const predictButton = document.getElementById('predict-btn');
+    const errorBox = document.getElementById('error-box');
+    const resultEmpty = document.getElementById('result-empty');
+    const resultContent = document.getElementById('result-content');
+
+    function syncAttendance(value) {
+      const cleanValue = Math.min(100, Math.max(0, Number(value) || 0));
+      attendanceInput.value = cleanValue;
+      attendanceRange.value = cleanValue;
+      attendanceValue.textContent = `${cleanValue}%`;
+    }
+
+    attendanceRange.addEventListener('input', (event) => syncAttendance(event.target.value));
+    attendanceInput.addEventListener('input', (event) => syncAttendance(event.target.value));
+
+    document.querySelectorAll('.quick-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.getElementById(button.dataset.target).value = button.dataset.value;
+      });
+    });
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.classList.add('visible');
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorBox.classList.remove('visible');
+      const studyhour = Number(studyInput.value);
+      const attendance = Number(attendanceInput.value);
+
+      if (!Number.isFinite(studyhour) || studyhour < 0 || studyhour > 24) {
+        showError('Please enter study hours between 0 and 24.');
+        studyInput.focus();
+        return;
+      }
+      if (!Number.isFinite(attendance) || attendance < 0 || attendance > 100) {
+        showError('Please enter attendance between 0% and 100%.');
+        attendanceInput.focus();
+        return;
+      }
+
+      predictButton.disabled = true;
+      predictButton.querySelector('span').textContent = 'Analyzing...';
+      try {
+        const response = await fetch(`${API_BASE_URL}/predict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studyhour, attendance })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'The prediction could not be completed.');
+
+        const prediction = String(data.prediction || '').toLowerCase();
+        const isPass = prediction === 'pass';
+        const confidence = Math.round(Number(data.confidence || 0) * 100);
+        const predictionValue = document.getElementById('prediction-value');
+        predictionValue.textContent = isPass ? 'Pass' : 'Fail';
+        predictionValue.className = `prediction-value ${isPass ? 'pass' : 'fail'}`;
+        document.getElementById('confidence-number').textContent = `${confidence}%`;
+        document.getElementById('meter-fill').style.width = `${confidence}%`;
+        document.getElementById('study-summary').textContent = `${studyhour} hours`;
+        document.getElementById('attendance-summary').textContent = `${attendance}%`;
+        document.getElementById('result-message').textContent = isPass
+          ? 'Great job! Your information shows a strong chance of passing. Keep up the effort.'
+          : 'There is room for improvement. Increase your study time and attendance to improve your result.';
+        resultEmpty.style.display = 'none';
+        resultContent.classList.add('visible');
+      } catch (error) {
+        const message = error.message === 'Failed to fetch'
+          ? 'The backend API could not be reached. Make sure uvicorn is running on port 8000.'
+          : (error.message || 'Please check that the API is running and try again.');
+        showError(message);
+      } finally {
+        predictButton.disabled = false;
+        predictButton.querySelector('span').textContent = 'Get prediction';
+      }
+    });
+  </script>
+</body>
+</html>
